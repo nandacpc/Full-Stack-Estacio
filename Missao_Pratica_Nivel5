@@ -1,0 +1,44 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import random
+
+from num2words import num2words
+from wordcloud import WordCloud
+from faker import Faker
+
+fake = Faker('pt_br')
+n = int(input(f'Digite o número de pessoas: '))
+lista_nomes = []
+lista_notas = []
+
+with open("arquivo.txt", "w") as arquivo:
+  for i in range(n):
+    nome = fake.first_name() + " " + fake.last_name()
+    ponto = str(random.randint(0,10))
+    resultado = nome + " " + ponto + "\n"
+    arquivo.write(resultado)
+    
+with open("arquivo.txt", "r") as recuperar:
+  for i in range(n):
+    ler_conteudo = recuperar.readline()
+    separar_conteudo = ler_conteudo.split(' ')
+    ler_notas = int(separar_conteudo[-1])
+    lista_notas.append(ler_notas)
+    lista_nomes_ext = num2words(ler_notas, lang = 'pt_br')
+    lista_nomes.append(lista_nomes_ext)
+    lista_nomes_str = (" ").join(lista_nomes)
+    
+plt.title('Histograma das Pontuações')
+plt.xlabel('Pontuações')
+plt.ylabel('Probabilidade')
+plt.xlim(-0.5,10.5) #0.5 a mais e a menos, pro gráfico ficar bonito
+plt.hist(lista_notas, bins=np.arange(-0.5,11), density=True, align="mid", rwidth=0.9) #criando a probabilidade no gráfico e mais coisinhas pra deixar ele bonito
+plt.show()
+
+wordcloud = WordCloud().generate(lista_nomes_str) #jogando a string de numeros extensos na nuvem de palavras
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.show()
+wordcloud.to_file("NuvemDePalavras.png")
+recuperar.close()
